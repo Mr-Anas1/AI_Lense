@@ -2,41 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* AI Legal Lens Design System - Professional Legal Tech Theme */
 
 @layer base {
   :root {
+    /* Core Brand Colors - Professional Navy & Blue Theme */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 220 27% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 27% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 27% 18%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Professional Navy */
+    --primary: 220 40% 20%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 220 40% 35%;
+    --primary-glow: 220 60% 45%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Clean Gray */
+    --secondary: 220 10% 95%;
+    --secondary-foreground: 220 27% 18%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 10% 96%;
+    --muted-foreground: 220 10% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 220 30% 92%;
+    --accent-foreground: 220 27% 18%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Risk Category Colors */
+    --safe: 140 70% 45%;
+    --safe-light: 140 50% 95%;
+    --safe-foreground: 140 70% 25%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --warning: 35 85% 55%;
+    --warning-light: 35 80% 95%;
+    --warning-foreground: 35 85% 30%;
 
-    --radius: 0.5rem;
+    --danger: 0 70% 55%;
+    --danger-light: 0 60% 95%;
+    --danger-foreground: 0 70% 35%;
+
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 90%;
+    --input: 220 15% 94%;
+    --ring: 220 40% 20%;
+
+    /* Design System Tokens */
+    --radius: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 40% 20%), hsl(220 60% 35%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 40% 20%), hsl(220 50% 25%), hsl(220 60% 35%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 10% 98%));
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 4px hsl(220 20% 20% / 0.08);
+    --shadow-md: 0 4px 12px hsl(220 20% 20% / 0.12);
+    --shadow-lg: 0 8px 24px hsl(220 20% 20% / 0.15);
+    --shadow-glow: 0 0 0 1px hsl(220 60% 45% / 0.1), 0 4px 16px hsl(220 60% 45% / 0.2);
+
+    /* Typography */
+    --font-heading: 'Inter', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
@@ -56,33 +94,58 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 220 27% 8%;
+    --foreground: 0 0% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 25% 10%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 25% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 220 60% 45%;
+    --primary-foreground: 220 27% 8%;
+    --primary-light: 220 50% 55%;
+    --primary-glow: 220 70% 60%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 15% 12%;
+    --muted-foreground: 220 10% 60%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 220 20% 18%;
+    --accent-foreground: 0 0% 90%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --safe: 140 60% 50%;
+    --safe-light: 140 30% 15%;
+    --safe-foreground: 140 60% 70%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --warning: 35 75% 60%;
+    --warning-light: 35 40% 18%;
+    --warning-foreground: 35 75% 75%;
+
+    --danger: 0 60% 60%;
+    --danger-light: 0 30% 18%;
+    --danger-foreground: 0 60% 75%;
+
+    --destructive: 0 60% 60%;
+    --destructive-foreground: 0 0% 95%;
+
+    --border: 220 15% 20%;
+    --input: 220 15% 18%;
+    --ring: 220 60% 45%;
+
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 60% 45%), hsl(220 70% 55%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 27% 8%), hsl(220 35% 12%), hsl(220 45% 18%));
+    --gradient-card: linear-gradient(145deg, hsl(220 25% 10%), hsl(220 20% 12%));
+    
+    /* Dark mode shadows */
+    --shadow-sm: 0 2px 4px hsl(0 0% 0% / 0.3);
+    --shadow-md: 0 4px 12px hsl(0 0% 0% / 0.4);
+    --shadow-lg: 0 8px 24px hsl(0 0% 0% / 0.5);
+    --shadow-glow: 0 0 0 1px hsl(220 60% 45% / 0.2), 0 4px 16px hsl(220 60% 45% / 0.3);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
