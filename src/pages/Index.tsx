@@ -1,9 +1,9 @@
-import AnalysisResults from "@/components/AnalysisResults";
+import DocumentUpload from "@/components/DocumentUpload";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      <AnalysisResults />
+      <DocumentUpload />
     </div>
   );
 };

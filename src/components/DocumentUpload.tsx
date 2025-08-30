@@ -4,6 +4,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Upload, FileText, X, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import uploadImage from "@/assets/upload-interface.jpg";
+import { useNavigate } from "react-router-dom";
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
+import { analyzeLegalDoc } from "@/lib/gemini";
+import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+GlobalWorkerOptions.workerSrc = pdfjsWorker as any;
+
 
 interface DocumentUploadProps {
   onFileUpload?: (file: File) => void;
@@ -13,6 +19,7 @@ const DocumentUpload = ({ onFileUpload }: DocumentUploadProps) => {
   const [dragActive, setDragActive] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const navigate = useNavigate();
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -49,14 +56,39 @@ const DocumentUpload = ({ onFileUpload }: DocumentUploadProps) => {
     setIsProcessing(false);
   };
 
-  const analyzeDocument = () => {
-    if (uploadedFile) {
-      setIsProcessing(true);
-      // Simulate processing time
-      setTimeout(() => {
+  const analyzeDocument = async () => {
+    if (!uploadedFile) return;
+    setIsProcessing(true);
+
+    try {
+      const fileReader = new FileReader();
+      fileReader.onload = async () => {
+        const result = fileReader.result as ArrayBuffer;
+        const typedArray = new Uint8Array(result);
+        const pdf = await getDocument({ data: typedArray }).promise;
+
+        let extractedText = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = (textContent.items as any[]).map((item: any) => item.str).join(" ");
+          extractedText += pageText + "\n";
+        }
+
+        console.log("Extracted PDF length:", extractedText.length);
+        console.log("Extracted PDF text (preview):", extractedText.slice(0, 1000));
+
+        const analysisResult = await analyzeLegalDoc(extractedText);
+        console.log("Analysis result:", analysisResult);
+
         setIsProcessing(false);
-        // Navigate to results or trigger analysis
-      }, 3000);
+        navigate("/result", { state: { extractedText, fileName: uploadedFile.name, analysisResult } });
+      };
+
+      fileReader.readAsArrayBuffer(uploadedFile);
+    } catch (error) {
+      console.error("Error extracting text:", error);
+      setIsProcessing(false);
     }
   };
 

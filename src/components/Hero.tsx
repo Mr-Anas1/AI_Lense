@@ -14,18 +14,7 @@ const Hero = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
           <div className="text-white space-y-8">
-            <div className="space-y-4">
-              <h1 className="text-5xl lg:text-6xl font-bold font-heading leading-tight">
-                AI Legal Lens
-              </h1>
-              <p className="text-xl lg:text-2xl text-primary-foreground/80 font-medium">
-                Simplify legal documents into clear, actionable insights
-              </p>
-              <p className="text-lg text-primary-foreground/70 leading-relaxed">
-                Upload any contract, agreement, or terms of service and instantly receive 
-                a breakdown of key clauses, risks, and obligations in simple English.
-              </p>
-            </div>
+            
 
             {/* Features */}
             <div className="grid sm:grid-cols-3 gap-6">

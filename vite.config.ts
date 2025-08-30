@@ -19,4 +19,8 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    // Prevent Vite from trying to prebundle Next.js packages which don't exist in this project
+    exclude: ["next", "next-themes"],
+  },
 }));
