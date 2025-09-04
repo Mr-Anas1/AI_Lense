@@ -1,73 +1,115 @@
-# Welcome to your Lovable project
+# 📝 AI Legal Lens
 
-## Project info
+*Simplifying Legal Documents with Generative AI*
 
-**URL**: https://lovable.dev/projects/cb392ca5-04ca-4140-8afc-f99e86634512
+---
 
-## How can I edit this code?
+## 📌 Overview
 
-There are several ways of editing your application.
+Legal documents like rental agreements or contracts are often long, filled with jargon, and difficult for everyday people to understand.
+**AI Legal Lens** is a web-based tool that uses **Google Gemini** to make these documents easy to read.
 
-**Use Lovable**
+Upload a PDF → Get simplified clauses, plain English explanations, and highlighted risks → Ask questions or search specific terms.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/cb392ca5-04ca-4140-8afc-f99e86634512) and start prompting.
+This makes legal information **clear, accessible, and less intimidating** for everyone.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## ✨ Features
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+* 📂 **Upload PDFs** – Upload tenancy agreements, rental contracts, or ToS.
+* 🔍 **Clause Categorization** – Clauses tagged as **Safe**, **Doubtful**, or **Needs Attention**.
+* 💡 **Plain English Explanations** – Simple, everyday language for each clause.
+* ⚠️ **Risk Detection** – Important risks highlighted separately.
+* 🔎 **Smart Search** – Find specific clauses or keywords instantly.
+* 💬 **Interactive Q\&A** – Ask follow-up questions about any clause.
+* 📑 **Export Option** – Download simplified summaries as a PDF.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🛠️ Tech Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+* **Frontend:** React (Vite), TailwindCSS
+* **Document Parsing:** pdf.js
+* **AI Analysis:** Google Gemini API (1.5 Flash)
+* **Hosting:** Vercel (Free)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## ⚙️ How It Works
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+1. User uploads a **PDF document**.
+2. **pdf.js** extracts the raw text.
+3. Extracted text is sent to **Gemini** for analysis.
+4. Gemini returns:
 
-**Edit a file directly in GitHub**
+   * Simplified clauses
+   * Categorization (Safe, Doubtful, Needs Attention)
+   * Risks & plain-language explanations
+5. User views results in a **clean, interactive dashboard**.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 📈 Scalability
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+In the future, the system can be extended to cover:
 
-## What technologies are used for this project?
+* Employment agreements
+* Service contracts
+* Non-Disclosure Agreements (NDAs)
+* Loan agreements
 
-This project is built with:
+With **Gemma fine-tuning in Vertex AI**, the model can be further specialized for legal use cases.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
+## 🎯 USP
 
-Simply open [Lovable](https://lovable.dev/projects/cb392ca5-04ca-4140-8afc-f99e86634512) and click on Share -> Publish.
+* Goes beyond summarization → **categorizes clauses + flags risks**
+* Provides **interactive search and Q\&A** for user-specific queries
+* **Confidential & user-friendly**, tailored for non-lawyers
 
-## Can I connect a custom domain to my Lovable project?
+---
 
-Yes, you can!
+## 🚀 Getting Started
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. Clone the repo
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+   ```bash
+   git clone https://github.com/your-username/ai-legal-lens.git
+   cd ai-legal-lens
+   ```
+
+2. Install dependencies
+
+   ```bash
+   npm install
+   ```
+
+3. Add your **Google API Key** in `.env.local`:
+
+   ```
+   VITE_GOOGLE_API_KEY=your_api_key_here
+   ```
+
+4. Run the development server
+
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## 📸 Screenshots
+
+*(Add your MVP screenshots here for extra impact)*
+
+---
+
+## 🙌 Acknowledgements
+
+* [Google Gemini](https://ai.google/) for generative AI
+* [pdf.js](https://mozilla.github.io/pdf.js/) for PDF parsing
+* Hackathon mentors for guidance
+
+---
