@@ -76,7 +76,7 @@ With **Gemma fine-tuning in Vertex AI**, the model can be further specialized fo
 1. Clone the repo
 
    ```bash
-   git clone https://github.com/your-username/ai-legal-lens.git
+   git clone https://github.com/Mr-Anas1/AI_Lense.git
    cd ai-legal-lens
    ```
 
