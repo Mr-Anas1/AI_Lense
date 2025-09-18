@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import {
   FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { model } from "@/lib/gemini";
 
 // Types matching the AI output shape
 export type AICategoryItem = { original: string; explanation: string };
@@ -41,7 +42,30 @@ const AnalysisResults = ({ data, fileName }: Props) => {
   const [selectedClause, setSelectedClause] = useState<number | null>(null);
   const [riskFilter, setRiskFilter] = useState<"all" | "safe" | "warning" | "danger">("all");
 
-  // (Upload-related logic removed; Analysis page now only displays results)
+  // Chat state
+  type ChatMsg = { role: "user" | "assistant"; text: string };
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+
+  // moved selected computation below flatClauses to avoid TDZ
+  // const selected = useMemo(() => flatClauses.find(c => c.id === selectedClause) || null, [selectedClause, flatClauses]);
+
+  // Transform AI data into a flat list used by UI
+  const flatClauses = useMemo(() => {
+    const items: { id: number; category: "safe" | "warning" | "danger"; originalText: string; explanation: string }[] = [];
+    let id = 1;
+    const safe = data?.clauses?.safe || [];
+    const doubtful = data?.clauses?.doubtful || [];
+    const needs = data?.clauses?.needs_attention || [];
+    safe.forEach((c) => items.push({ id: id++, category: "safe", originalText: c.original, explanation: c.explanation }));
+    doubtful.forEach((c) => items.push({ id: id++, category: "warning", originalText: c.original, explanation: c.explanation }));
+    needs.forEach((c) => items.push({ id: id++, category: "danger", originalText: c.original, explanation: c.explanation }));
+    return items;
+  }, [data]);
+
+  const selected = useMemo(() => flatClauses.find(c => c.id === selectedClause) || null, [selectedClause, flatClauses]);
 
   const getRiskIcon = (category: string) => {
     switch (category) {
@@ -69,19 +93,6 @@ const AnalysisResults = ({ data, fileName }: Props) => {
     }
   };
 
-  // Transform AI data into a flat list used by UI
-  const flatClauses = useMemo(() => {
-    const items: { id: number; category: "safe" | "warning" | "danger"; originalText: string; explanation: string }[] = [];
-    let id = 1;
-    const safe = data?.clauses?.safe || [];
-    const doubtful = data?.clauses?.doubtful || [];
-    const needs = data?.clauses?.needs_attention || [];
-    safe.forEach((c) => items.push({ id: id++, category: "safe", originalText: c.original, explanation: c.explanation }));
-    doubtful.forEach((c) => items.push({ id: id++, category: "warning", originalText: c.original, explanation: c.explanation }));
-    needs.forEach((c) => items.push({ id: id++, category: "danger", originalText: c.original, explanation: c.explanation }));
-    return items;
-  }, [data]);
-
   const filteredClauses = flatClauses
     .filter(clause => riskFilter === "all" || clause.category === riskFilter)
     .filter(clause =>
@@ -94,6 +105,19 @@ const AnalysisResults = ({ data, fileName }: Props) => {
   const dangerCount = data?.clauses?.needs_attention?.length || 0;
   const totalClauses = safeCount + warningCount + dangerCount;
   const overallRisk = dangerCount > 0 ? "High" : warningCount > 0 ? "Medium" : "Low";
+
+  // Sanitize AI text: remove bold markdown markers like **Heading**
+  const sanitizeAIText = (t: string) => t.replace(/\*\*(.*?)\*\*/g, "$1");
+
+  // Chat scroll container ref
+  const chatScrollRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    // Auto-scroll to bottom when messages update or a new clause is selected
+    const el = chatScrollRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [messages, selected]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -297,6 +321,12 @@ const AnalysisResults = ({ data, fileName }: Props) => {
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedClause(clause.id);
+                              // Initialize chat when opened
+                              setMessages([
+                                { role: "assistant", text: "Hi! I'm here to help you understand this clause. Ask a question or click a suggested one below." },
+                              ]);
+                              setChatInput("");
+                              setChatError(null);
                               setChatOpen(true);
                             }}
                           >
@@ -328,9 +358,16 @@ const AnalysisResults = ({ data, fileName }: Props) => {
 
       {/* Chat Interface */}
       {chatOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-end justify-end p-6 z-50">
-          <Card className="w-96 h-96 shadow-xl">
-            <CardHeader className="border-b">
+        <div className="fixed inset-0 z-50">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setChatOpen(false)}
+          />
+
+          {/* Chat panel */}
+          <Card className="absolute bottom-6 right-6 w-[380px] h-[520px] max-h-[80vh] shadow-xl flex flex-col overflow-hidden box-border">
+            <CardHeader className="border-b shrink-0">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">AI Assistant</CardTitle>
                 <Button 
@@ -342,21 +379,90 @@ const AnalysisResults = ({ data, fileName }: Props) => {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 p-4">
-              <div className="h-full flex flex-col">
-                <div className="flex-1 mb-4">
-                  <div className="bg-muted p-3 rounded-lg mb-3">
-                    <p className="text-sm">
-                      Hi! I'm here to help you understand this clause. What would you like to know?
-                    </p>
-                  </div>
+            <CardContent className="p-4 flex-1 flex flex-col overflow-hidden min-h-0">
+              <div className="flex-1 flex flex-col gap-2 min-h-0">
+                <div
+                  ref={chatScrollRef}
+                  className="flex-1 overflow-y-auto space-y-2 pr-1 flex flex-col touch-pan-y overscroll-contain"
+                >
+                  {/* Context bubble for the selected clause */}
+                  {selected && (
+                    <div className="bg-muted/40 p-3 rounded-lg self-start max-w-[90%]">
+                      <p className="text-xs font-medium mb-1">Clause context</p>
+                      <p className="text-xs text-muted-foreground whitespace-pre-wrap break-words">{selected.originalText}</p>
+                    </div>
+                  )}
+
+                  {/* Messages */}
+                  {messages.map((m, idx) => {
+                    const base = "p-3 rounded-2xl text-sm whitespace-pre-wrap break-words max-w-[85%]";
+                    const cls = m.role === "assistant"
+                      ? `self-start bg-muted ${base} rounded-tl-md`
+                      : `self-end bg-primary/10 ${base} rounded-tr-md`;
+                    return (
+                      <div key={idx} className={cls}>
+                        <p>{m.text}</p>
+                      </div>
+                    );
+                  })}
+
+                  {chatError && (
+                    <div className="bg-danger/10 text-danger text-sm p-2 rounded">
+                      {chatError}
+                    </div>
+                  )}
                 </div>
-                <div className="flex gap-2">
-                  <Input placeholder="Ask a question..." className="flex-1" />
-                  <Button size="icon">
-                    <MessageCircle className="w-4 h-4" />
+                <form
+                  className="flex gap-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!selected || !chatInput.trim() || chatLoading) return;
+                    setChatError(null);
+                    setChatLoading(true);
+                    const question = chatInput.trim();
+                    setMessages(prev => [...prev, { role: "user", text: question }]);
+                    setChatInput("");
+
+                    try {
+                      const prompt = `You are a helpful legal assistant. Answer the user's question about the given clause in clear, simple language. If relevant, mention potential risks or negotiation tips. Do not use Markdown formatting; output plain text only.\n\nClause:\n"""${selected.originalText}"""\n\nQuestion: ${question}`;
+
+                      const result = await model.generateContent({
+                        contents: [
+                          { role: "user", parts: [{ text: prompt }] },
+                        ],
+                        generationConfig: {
+                          temperature: 0.3,
+                          maxOutputTokens: 512,
+                          responseMimeType: "text/plain",
+                        },
+                      });
+
+                      const answerRaw = result.response.text();
+                      const answer = sanitizeAIText(answerRaw);
+                      setMessages(prev => [...prev, { role: "assistant", text: answer }]);
+                    } catch (err) {
+                      console.error("Gemini chat error", err);
+                      setChatError("Failed to get an answer. Please try again.");
+                    } finally {
+                      setChatLoading(false);
+                    }
+                  }}
+                >
+                  <Input
+                    placeholder="Ask a question..."
+                    className="flex-1"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    disabled={!selected || chatLoading}
+                  />
+                  <Button size="icon" type="submit" disabled={!selected || chatLoading}>
+                    {chatLoading ? (
+                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <MessageCircle className="w-4 h-4" />
+                    )}
                   </Button>
-                </div>
+                </form>
               </div>
             </CardContent>
           </Card>
